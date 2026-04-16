@@ -31,6 +31,9 @@ void Canvas::setCurrentThickness(int thickness)
 
 void Canvas::clearShapes()
 {
+    for (Shape* shape : m_shapes) {
+        delete shape;
+    }
     m_shapes.clear();
     update();
 }
@@ -40,8 +43,8 @@ void Canvas::paintEvent(QPaintEvent* event)
     Q_UNUSED(event);
     QPainter painter(this);
 
-    for (const auto& shape : m_shapes) {
-        if (shape.get()) {
+    for (Shape* shape : m_shapes) {
+        if (shape) {
             shape->draw(&painter);
         }
     }
@@ -102,7 +105,7 @@ void Canvas::mouseReleaseEvent(QMouseEvent* event)
         if (m_currentTool != ToolPen) {
             m_currentShape->updateShape(event->pos());
         }
-        m_shapes.append(std::move(m_currentShape));
+        m_shapes.append(m_currentShape.release());
         m_isDrawing = false;
         update();
     }
@@ -118,21 +121,21 @@ bool Canvas::saveToFile(const QString& filename)
     QDataStream stream(&file);
     stream << (qint32)m_shapes.size();
 
-    for (const auto& shape : m_shapes) {
-        if (!shape.get()) continue;
+    for (Shape* shape : m_shapes) {
+        if (!shape) continue;
 
-        if (dynamic_cast<Line*>(shape.get())) {
+        if (dynamic_cast<Line*>(shape)) {
             stream << (qint32)1;
-            dynamic_cast<Line*>(shape.get())->saveToStream(stream);
-        } else if (dynamic_cast<Rectangle*>(shape.get())) {
+            dynamic_cast<Line*>(shape)->saveToStream(stream);
+        } else if (dynamic_cast<Rectangle*>(shape)) {
             stream << (qint32)2;
-            dynamic_cast<Rectangle*>(shape.get())->saveToStream(stream);
-        } else if (dynamic_cast<Ellipse*>(shape.get())) {
+            dynamic_cast<Rectangle*>(shape)->saveToStream(stream);
+        } else if (dynamic_cast<Ellipse*>(shape)) {
             stream << (qint32)3;
-            dynamic_cast<Ellipse*>(shape.get())->saveToStream(stream);
-        } else if (dynamic_cast<PenTool*>(shape.get())) {
+            dynamic_cast<Ellipse*>(shape)->saveToStream(stream);
+        } else if (dynamic_cast<PenTool*>(shape)) {
             stream << (qint32)4;
-            dynamic_cast<PenTool*>(shape.get())->saveToStream(stream);
+            dynamic_cast<PenTool*>(shape)->saveToStream(stream);
         }
     }
 
@@ -161,25 +164,25 @@ bool Canvas::loadFromFile(const QString& filename)
             case 1: {
                 Line* line = new Line();
                 line->loadFromStream(stream);
-                m_shapes.append(SmartPtr<Shape>(line));
+                m_shapes.append(line);
                 break;
             }
             case 2: {
                 Rectangle* rect = new Rectangle();
                 rect->loadFromStream(stream);
-                m_shapes.append(SmartPtr<Shape>(rect));
+                m_shapes.append(rect);
                 break;
             }
             case 3: {
                 Ellipse* ellipse = new Ellipse();
                 ellipse->loadFromStream(stream);
-                m_shapes.append(SmartPtr<Shape>(ellipse));
+                m_shapes.append(ellipse);
                 break;
             }
             case 4: {
                 PenTool* pen = new PenTool();
                 pen->loadFromStream(stream);
-                m_shapes.append(SmartPtr<Shape>(pen));
+                m_shapes.append(pen);
                 break;
             }
         }

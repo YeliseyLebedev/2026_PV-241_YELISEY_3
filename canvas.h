@@ -2,7 +2,7 @@
 #define CANVAS_H
 
 #include <QWidget>
-#include <QVector>
+#include <QList>
 #include "smartptr.h"
 #include "shape.h"
 
@@ -30,7 +30,7 @@ protected:
     void mouseReleaseEvent(QMouseEvent* event) override;
 
 private:
-    QVector<SmartPtr<Shape>> m_shapes;
+    QList<Shape*> m_shapes;
     SmartPtr<Shape> m_currentShape;
     Tool m_currentTool = ToolLine;
     QColor m_currentColor = Qt::black;
