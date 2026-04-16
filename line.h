@@ -3,10 +3,17 @@
 
 #include "shape.h"
 
-class line : public Shape
+class Line : public Shape
 {
 public:
-    line();
+    Line();
+
+    void draw(QPainter* painter) const override;
+    void updateShape(const QPoint& currentPoint) override;
+
+    void saveToStream(QDataStream& stream) const;
+    void loadFromStream(QDataStream& stream);
+    int getType() const { return 1; }
 };
 
-#endif // LINE_H
+#endif

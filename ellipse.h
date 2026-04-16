@@ -3,10 +3,17 @@
 
 #include "shape.h"
 
-class ellipse : public Shape
+class Ellipse : public Shape
 {
 public:
-    ellipse();
+    Ellipse();
+
+    void draw(QPainter* painter) const override;
+    void updateShape(const QPoint& currentPoint) override;
+
+    void saveToStream(QDataStream& stream) const;
+    void loadFromStream(QDataStream& stream);
+    int getType() const { return 3; }
 };
 
-#endif // ELLIPSE_H
+#endif

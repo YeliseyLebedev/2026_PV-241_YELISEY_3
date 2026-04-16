@@ -3,10 +3,17 @@
 
 #include "shape.h"
 
-class rectangle : public Shape
+class Rectangle : public Shape
 {
 public:
-    rectangle();
+    Rectangle();
+
+    void draw(QPainter* painter) const override;
+    void updateShape(const QPoint& currentPoint) override;
+
+    void saveToStream(QDataStream& stream) const;
+    void loadFromStream(QDataStream& stream);
+    int getType() const { return 2; }
 };
 
-#endif // RECTANGLE_H
+#endif
